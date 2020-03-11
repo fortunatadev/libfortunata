@@ -68,48 +68,48 @@ pub struct MF_File_VG_1_0 {
 }
 
 /// Implementation of into for Manifest generic type 
-impl From<super::Manifest> for Manifest_VG_1_0 {
+impl From<super::Manifest<'_>> for Manifest_VG_1_0 {
 	/// Converts a `vg-1.0` Manifest into a generic Manifest type.
 	fn from(item: super::Manifest) -> Self {
 		Self {
-			version     : item.version,
-			label       : item.label,
+			version     : item.version.to_owned(),
+			label       : item.label.to_owned(),
 			profiles    : item.profiles.into_iter().map(|e| e.into()).collect(),
 			files    	: item.files.into_iter().map(|e| e.into()).collect(),
-			webpage     : item.webpage,
-			forums      : item.forums,
-			poster_image: item.poster_image,
-			discord     : item.discord,
-			rss         : item.rss
+			webpage     : item.webpage.map(String::from),
+			forums      : item.forums.map(String::from),
+			poster_image: item.poster_image.map(String::from),
+			discord     : item.discord.map(String::from),
+			rss         : item.rss.map(String::from)
 		}
 	}
 }
 
 /// Implementation of into for profiles
-impl From<super::ManifestProfile> for MF_Profile_VG_1_0 {
+impl From<super::ManifestProfile<'_>> for MF_Profile_VG_1_0 {
 	/// Converts a `vg-1.0` Profile into a generic ManifestProfile type.
 	fn from(item: super::ManifestProfile) -> Self {
 		Self {
-			name            : item.name,
-			exec            : item.exec,
+			name            : item.name.to_owned(),
+			exec            : item.exec.to_owned(),
 			order           : item.order,
-			params          : item.params,
-			architecture    : item.architecture,
+			params          : item.params.map(String::from),
+			architecture    : item.architecture.map(String::from),
 		}
 	}
 }
 
 /// Implementation of into for files
-impl From<super::ManifestFile> for MF_File_VG_1_0 {
+impl From<super::ManifestFile<'_>> for MF_File_VG_1_0 {
 	/// Converts a `vg-1.0` Profile into a generic ManifestFile type.
 	fn from(item: super::ManifestFile) -> Self {
 		Self {
-			path    : item.path,
-			url     : item.url,
+			path    : item.path.to_owned(),
+			url     : item.url.into_iter().map(String::from).collect(),
 			size    : item.size,
-			md5     : item.md5,
-			sha1    : item.sha1,
-			sha256  : item.sha256
+			md5     : item.md5.map(String::from),
+			sha1    : item.sha1.map(String::from),
+			sha256  : item.sha256.map(String::from)
 		}
 	}
 }

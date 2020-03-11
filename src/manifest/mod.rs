@@ -9,36 +9,36 @@ use manifest_spec::Manifest;
 
 pub fn manifest_as_toml() {
 	let a = Manifest {
-		version: "vg-1.0".to_owned(),
-		label: "Example Manifest".to_owned(),
+		version: "vg-1.0",
+		label: "Example Manifest",
 		profiles: vec![manifest_spec::ManifestProfile {
-			name: "Example App".to_owned(),
-			exec: "example-app.exe".to_owned(),
-			params: Some("--be-super-awesome".to_owned()),
+			name: "Example App",
+			exec: "example-app.exe",
+			params: Some("--be-super-awesome"),
 			order: Some(0),
-			architecture: Some("x64".to_owned())
+			architecture: Some("x64")
 		}],
 		files: vec![manifest_spec::ManifestFile {
-			path: "example-app.exe".to_owned(),
-			url: vec!["https://some.example.app/example-app.exe".to_owned()],
+			path: "example-app.exe",
+			url: vec!["https://some.example.app/example-app.exe"],
 			size: Some(0),
 			md5: None,
 			sha1: None,
-			sha256: Some("this-is-totally-a-real-hash".to_owned())
+			sha256: Some("this-is-totally-a-real-hash")
 		},
 		manifest_spec::ManifestFile {
-			path: "example-dep.dll".to_owned(),
-			url: vec!["https://some.example.app/example-dep.dll".to_owned(), "https://another.mirror/example-dep.dll".to_owned()],
+			path: "example-dep.dll",
+			url: vec!["https://some.example.app/example-dep.dll", "https://another.mirror/example-dep.dll"],
 			size: Some(0),
 			md5: None,
 			sha1: None,
-			sha256: Some("this-is-also-totally-a-real-hash".to_owned())
+			sha256: Some("this-is-also-totally-a-real-hash")
 		}],
-		discord: Some("a-discord-invite-url".to_owned()),
-		poster_image: Some("a-banner-image-url".to_owned()),
-		rss: Some("an-rss-feed-url".to_owned()),
-		webpage: Some("a-webpage-url".to_owned()),
-		forums: Some("a-forum-url".to_owned())
+		discord: Some("a-discord-invite-url"),
+		poster_image: Some("a-banner-image-url"),
+		rss: Some("an-rss-feed-url"),
+		webpage: Some("a-webpage-url"),
+		forums: Some("a-forum-url")
 	};
 	println!("{}", toml::to_string::<manifest_spec::vg_1_0::Manifest_VG_1_0>(&a.into()).unwrap())
 }
