@@ -23,7 +23,7 @@ const TQ_ATTR_ARCH: &str	= "arch";
 const INITIAL_PROFILE_ALLOC: usize	= 127;
 const INITAL_FILE_ALLOC: usize		= 1024;
 
-pub fn parse_manifest<'a>(manifest: &str) -> Result<Manifest, ManifestError> {
+pub fn parse_manifest(manifest: &str) -> Result<Manifest, ManifestError> {
 	// A Tequila manifest should only have one root element named `manifest`.
 	let xml_doc = Document::parse(manifest)?;
 	let xml_manifest = xml_doc.root().children().next().unwrap();
@@ -32,9 +32,9 @@ pub fn parse_manifest<'a>(manifest: &str) -> Result<Manifest, ManifestError> {
 	}
 
 	// Build the start of our return object.
-	let mut result = Manifest::<'a> {
-		version: TQ_VERSION,
-		label: "None",
+	let mut result = Manifest {
+		version: TQ_VERSION.to_owned(),
+		label: "None".to_owned(),
 		profiles: Vec::<ManifestProfile>::with_capacity(INITIAL_PROFILE_ALLOC),
 		files: Vec::<ManifestFile>::with_capacity(INITAL_FILE_ALLOC),
 		webpage: None,
@@ -55,51 +55,19 @@ pub fn parse_manifest<'a>(manifest: &str) -> Result<Manifest, ManifestError> {
 		}
 	}
 
-	return Ok(super::Manifest {
-		version: "vg-1.0",
-		label: "Example Manifest",
-		profiles: vec![super::ManifestProfile {
-			name: "Example App",
-			exec: "example-app.exe",
-			params: Some("--be-super-awesome"),
-			order: Some(0),
-			architecture: Some("x64")
-		}],
-		files: vec![super::ManifestFile {
-			path: "example-app.exe",
-			url: vec!["https://some.example.app/example-app.exe"],
-			size: Some(0),
-			md5: None,
-			sha1: None,
-			sha256: Some("this-is-totally-a-real-hash")
-		},
-		super::ManifestFile {
-			path: "example-dep.dll",
-			url: vec!["https://some.example.app/example-dep.dll", "https://another.mirror/example-dep.dll"],
-			size: Some(0),
-			md5: None,
-			sha1: None,
-			sha256: Some("this-is-also-totally-a-real-hash")
-		}],
-		discord: Some("a-discord-invite-url"),
-		poster_image: Some("a-banner-image-url"),
-		rss: Some("an-rss-feed-url"),
-		webpage: Some("a-webpage-url"),
-		forums: Some("a-forum-url")
-	});
+	return Ok(result);
 }
 
-fn parse_profiles<'a>(profiles: &roxmltree::Node::<'a, '_>, result: &mut Manifest<'a>) {
+fn parse_profiles<'a>(profiles: &roxmltree::Node::<'a, '_>, result: &mut Manifest) {
 	for node in profiles.children() {
 		if node.is_element() {
-			println!("profile {:?}", node);
 			match node.tag_name().name() {
-				TQ_TAG_LAUNCH => result.profiles.push(ManifestProfile::<'a> {
-					exec: node.attribute(TQ_ATTR_EXEC).unwrap(),
-					name: node.text().unwrap(),
-					params: node.attribute(TQ_ATTR_PARAMS),
+				TQ_TAG_LAUNCH => result.profiles.push(ManifestProfile {
+					exec: node.attribute(TQ_ATTR_EXEC).unwrap().to_owned(),
+					name: node.text().unwrap().to_owned(),
+					params: node.attribute(TQ_ATTR_PARAMS).map(String::from),
 					order: node.attribute(TQ_ATTR_ORDER).and_then(|a: &str| a.parse::<u8>().ok()),
-					architecture: node.attribute(TQ_ATTR_ARCH)
+					architecture: node.attribute(TQ_ATTR_ARCH).map(String::from)
 				}),
 				_ => ()
 			}

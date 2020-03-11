@@ -8,17 +8,17 @@ mod manifest_spec;
 use manifest_spec::Manifest;
 
 pub fn manifest_as_toml() {
-	let a = Manifest {
+	let a = manifest_spec::vg_1_0::Manifest_VG_1_0 {
 		version: "vg-1.0",
 		label: "Example Manifest",
-		profiles: vec![manifest_spec::ManifestProfile {
+		profiles: vec![manifest_spec::vg_1_0::MF_Profile_VG_1_0 {
 			name: "Example App",
 			exec: "example-app.exe",
 			params: Some("--be-super-awesome"),
 			order: Some(0),
 			architecture: Some("x64")
 		}],
-		files: vec![manifest_spec::ManifestFile {
+		files: vec![manifest_spec::vg_1_0::MF_File_VG_1_0 {
 			path: "example-app.exe",
 			url: vec!["https://some.example.app/example-app.exe"],
 			size: Some(0),
@@ -26,7 +26,7 @@ pub fn manifest_as_toml() {
 			sha1: None,
 			sha256: Some("this-is-totally-a-real-hash")
 		},
-		manifest_spec::ManifestFile {
+		manifest_spec::vg_1_0::MF_File_VG_1_0 {
 			path: "example-dep.dll",
 			url: vec!["https://some.example.app/example-dep.dll", "https://another.mirror/example-dep.dll"],
 			size: Some(0),
