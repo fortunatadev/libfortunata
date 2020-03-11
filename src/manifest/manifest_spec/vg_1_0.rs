@@ -53,8 +53,8 @@ pub struct MF_Profile_VG_1_0 {
 #[derive(Debug, Serialize, Deserialize)]
 #[allow(non_camel_case_types)]
 pub struct MF_File_VG_1_0 {
-	/// Filepath of the file, relative to app dir.
-	pub name: String,
+	/// Filepath of the file on disk, relative to app dir.
+	pub path: String,
 	/// URL(s) to retrieve the file from.
 	pub url: Vec<String>,
 	/// Size in bytes of the file.
@@ -104,7 +104,7 @@ impl From<super::ManifestFile> for MF_File_VG_1_0 {
 	/// Converts a `vg-1.0` Profile into a generic ManifestFile type.
 	fn from(item: super::ManifestFile) -> Self {
 		Self {
-			name    : item.name,
+			path    : item.path,
 			url     : item.url,
 			size    : item.size,
 			md5     : item.md5,
