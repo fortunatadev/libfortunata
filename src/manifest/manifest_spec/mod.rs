@@ -13,9 +13,10 @@ pub struct ManifestVersion {
 /// Defines a Manifest.
 /// This type is a superset of all versioned Manifest types, and takes ownership
 /// of data deserialized with underlying versioned types so deserializers can fall out of scope.
+#[derive(Debug, Clone)]
 pub struct Manifest {
 	/// Version identifier (ie, vg-1.0).
-	/// Tequila does not sepifcy a version attribute, so `tq` is used for all Tequila manifests.
+	/// Tequila does not sepifcy a version attribute, so `tq-xml` is used for all Tequila XML manifests.
 	pub version: String,
 	/// Global application name for the manifest.
 	pub label: String,
@@ -36,6 +37,7 @@ pub struct Manifest {
 }
 
 /// Defines a launchable application profile
+#[derive(Debug, Clone)]
 pub struct ManifestProfile {
 	/// Profile name.
 	pub name: String,
@@ -50,6 +52,7 @@ pub struct ManifestProfile {
 }
 
 /// Defines a patchable file. MD5, SHA1, or SHA256 is required for secure patching.
+#[derive(Debug, Clone)]
 pub struct ManifestFile {
 	/// Filepath of the file on disk, relative to app dir.
 	pub path: String,

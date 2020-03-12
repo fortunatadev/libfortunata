@@ -67,9 +67,8 @@ pub struct MF_File_VG_1_0<'a> {
 	pub sha256: Option<&'a str>,
 }
 
-/// Implementation of into for Manifest generic type 
+/// Implementation of VG Manifest 1.0 -> Manifest conversion
 impl From<Manifest_VG_1_0<'_>> for super::Manifest {
-	/// Converts a `vg-1.0` Manifest into a generic Manifest type.
 	fn from(item: Manifest_VG_1_0) -> Self {
 		Self {
 			version     : item.version.to_owned(),
@@ -84,10 +83,7 @@ impl From<Manifest_VG_1_0<'_>> for super::Manifest {
 		}
 	}
 }
-
-/// Implementation of into for profiles
 impl From<MF_Profile_VG_1_0<'_>> for super::ManifestProfile {
-	/// Converts a `vg-1.0` Profile into a generic ManifestProfile type.
 	fn from(item: MF_Profile_VG_1_0) -> Self {
 		Self {
 			name            : item.name.to_owned(),
@@ -98,10 +94,7 @@ impl From<MF_Profile_VG_1_0<'_>> for super::ManifestProfile {
 		}
 	}
 }
-
-/// Implementation of into for files
 impl From<MF_File_VG_1_0<'_>> for super::ManifestFile {
-	/// Converts a `vg-1.0` Profile into a generic ManifestFile type.
 	fn from(item: MF_File_VG_1_0) -> Self {
 		Self {
 			path    : item.path.to_owned(),
@@ -110,6 +103,36 @@ impl From<MF_File_VG_1_0<'_>> for super::ManifestFile {
 			md5     : item.md5.map(String::from),
 			sha1    : item.sha1.map(String::from),
 			sha256  : item.sha256.map(String::from)
+		}
+	}
+}
+
+/// Implementation of &Manifest -> VG Manifest 1.0 conversion
+impl<'a> From<&'a super::Manifest> for Manifest_VG_1_0<'a> {
+	fn from(item: &'a super::Manifest) -> Self {
+		Self {
+			version     : item.version.as_str(),
+			label       : item.label.as_str(),
+			profiles    : item.profiles.iter().map(|e| MF_Profile_VG_1_0::<'a> {
+				name: e.name.as_str(),
+				exec: e.exec.as_str(),
+				order: e.order,
+				params: e.params.as_deref(),
+				architecture: e.architecture.as_deref()
+			}).collect(),
+			files	    : item.files.iter().map(|e| MF_File_VG_1_0::<'a> {
+				path: e.path.as_str(),
+				url: e.url.iter().map(|u| u.as_str()).collect(),
+				size: e.size,
+				md5: e.md5.as_deref(),
+				sha1: e.sha1.as_deref(),
+				sha256: e.sha256.as_deref(),
+			}).collect(),
+			webpage     : item.webpage.as_deref(),
+			forums      : item.forums.as_deref(),
+			poster_image: item.poster_image.as_deref(),
+			discord     : item.discord.as_deref(),
+			rss         : item.rss.as_deref()
 		}
 	}
 }

@@ -5,8 +5,6 @@ extern crate ureq;
 mod manifest;
 
 fn main() {
-	manifest::manifest_as_toml();
-	println!();
     // Get Manifest
     let http_manifest = ureq::get(&std::env::var("VG_MANIFEST").unwrap())
         .call();
