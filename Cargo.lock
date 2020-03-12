@@ -178,12 +178,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7ffc5c5338469d4d3ea17d269fa8ea3512ad247247c30bd2df69e68309ed0a08"
 
 [[package]]
-name = "memchr"
-version = "2.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3728d817d99e5ac407411fa471ff9800a778d88a24685968b36824eaf4bee400"
-
-[[package]]
 name = "percent-encoding"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -211,16 +205,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d464fae65fff2680baf48019211ce37aaec0c78e9264c84a3e484717f965104e"
 dependencies = [
  "percent-encoding 2.1.0",
-]
-
-[[package]]
-name = "quick-xml"
-version = "0.17.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe1e430bdcf30c9fdc25053b9c459bb1a4672af4617b6c783d7d91dc17c6bbb0"
-dependencies = [
- "memchr",
- "serde",
 ]
 
 [[package]]
@@ -422,7 +406,6 @@ dependencies = [
 name = "vanguard-rs"
 version = "0.1.0"
 dependencies = [
- "quick-xml",
  "roxmltree",
  "serde",
  "toml",

@@ -1,3 +1,6 @@
+// --- Dependencies
+extern crate roxmltree;
+
 // --- Modules
 pub mod vg_1_0;
 pub mod tq;
@@ -8,11 +11,12 @@ pub struct ManifestVersion {
 }
 
 /// Defines a Manifest.
-/// This type is a superset of all versioned Manifest types,
-/// intended to be the most generic possible typing.
+/// This type is a superset of all versioned Manifest types, and takes ownership
+/// of data deserialized with underlying versioned types so deserializers can fall out of scope.
+#[derive(Debug, Clone)]
 pub struct Manifest {
 	/// Version identifier (ie, vg-1.0).
-	/// Tequila does not sepifcy a version attribute, so `tq` is used for all Tequila manifests.
+	/// Tequila does not sepifcy a version attribute, so `tq-xml` is used for all Tequila XML manifests.
 	pub version: String,
 	/// Global application name for the manifest.
 	pub label: String,
@@ -26,8 +30,6 @@ pub struct Manifest {
 	pub rss: Option<String>,
 	/// URL of a banner image to display on GUI launchers.
 	pub poster_image: Option<String>,
-	/// List of self-updating launcher files, for Tequila only.
-	pub launchers: Option<Vec<ManifestLauncher>>,
 	/// List of executable profiles.
 	pub profiles: Vec<ManifestProfile>,
 	/// List of files to patch.
@@ -35,6 +37,7 @@ pub struct Manifest {
 }
 
 /// Defines a launchable application profile
+#[derive(Debug, Clone)]
 pub struct ManifestProfile {
 	/// Profile name.
 	pub name: String,
@@ -49,9 +52,10 @@ pub struct ManifestProfile {
 }
 
 /// Defines a patchable file. MD5, SHA1, or SHA256 is required for secure patching.
+#[derive(Debug, Clone)]
 pub struct ManifestFile {
-	/// Filepath of the file, relative to app dir.
-	pub name: String,
+	/// Filepath of the file on disk, relative to app dir.
+	pub path: String,
 	/// URL(s) to retrieve the file from.
 	pub url: Vec<String>,
 	/// Size in bytes of the file.
@@ -64,17 +68,27 @@ pub struct ManifestFile {
 	pub sha256: Option<String>,
 }
 
-/// Defines the launcher for self-updating. This feature is not used by Vanguard, but is present for Tequila interoperability.
-/// Launchers should only be present in Tequila XML manifests.
-pub struct ManifestLauncher {
-	/// Launcher id. Normally "tequila"
-	pub id: String,
-	/// URL(s) to retrieve the file from, in order of preference
-	pub url: Vec<String>,
-	/// Size in bytes of the file
-	pub size: String,
-	/// MD5 hash of the launcher file
-	pub md5: String,
-	/// Version identifier for the launcher
-	pub version: String,
+/// Defines a Manifest parsing error
+#[derive(Debug)]
+pub enum ManifestError {
+	Invalid
+}
+impl std::fmt::Display for ManifestError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match *self {
+            ManifestError::Invalid => f.write_str("Invalid Manifest"),
+        }
+    }
+}
+impl std::error::Error for ManifestError {
+	fn description(&self) -> &str {
+        match *self {
+            ManifestError::Invalid => "Failed to validated Manifest file.",
+        }
+    }
+}
+impl From<roxmltree::Error> for ManifestError {
+	fn from(_: roxmltree::Error) -> Self {
+		Self::Invalid
+	}
 }
