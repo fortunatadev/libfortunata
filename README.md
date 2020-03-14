@@ -18,7 +18,7 @@ The `vanguard.toml` file in the project root may be used for configuration. Ordi
 
 Vanguard uses Manifest files to determine what files to download and update. Tequila-format XML manifests are supported, but not recommended.
 
-Vanguard's native Manifest format is stored as [TOML](https://github.com/toml-lang/toml), which enforces a more regular and easily parsable data structure than XML. An [example manifest](https://github.com/vanguarddev/vanguard-patcher/blob/master/Manifest.toml) is available for reference.
+Vanguard's native Manifest format is stored as [TOML](https://github.com/toml-lang/toml), which enforces a more regular and easily parsable data structure than XML. An [example manifest](https://github.com/vanguarddev/vanguard-patcher/blob/master/examples/Manifest.toml) is available for reference.
 
 A CLI tool, [Manifesto](https://github.com/vanguarddev/vanguard-manifesto), is also available for application admins to generate and manage Manifest files. Manifesto can also convert Tequila XML manifests to Vanguard manifests.
 
