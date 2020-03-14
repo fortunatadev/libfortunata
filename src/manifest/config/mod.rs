@@ -6,7 +6,11 @@ pub struct Config {
     const CFG_VERSION: &str = "1.0";
     const CFG_FILE_PATH: &str = "vanguard.toml";
     
-    // TODO: fns
+    /// Loads and parses config from the `vanguard.toml` file in the application root.
+    /// All errors are silently ignored, preferring to return default config.
+    fn load_config() -> Config {
+
+    }
 
     /// Config file data model
     #[derive(Debug, Clone, Serialize, Deserialize)]
