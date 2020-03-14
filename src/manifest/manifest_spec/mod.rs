@@ -1,14 +1,6 @@
-// --- Dependencies
-extern crate roxmltree;
-
 // --- Modules
+pub mod tq_xml;
 pub mod vg_1_0;
-pub mod tq;
-
-//TODO:
-pub struct ManifestVersion {
-	version: String,
-}
 
 /// Defines a Manifest.
 /// This type is a superset of all versioned Manifest types, and takes ownership
@@ -47,6 +39,8 @@ pub struct ManifestProfile {
 	pub order: Option<u8>,
 	/// Application params for launch.
 	pub params: Option<String>,
+	/// Application icon URL.
+	pub icon: Option<String>,
 	/// Application architecture.
 	pub architecture: Option<String>,
 }
@@ -68,27 +62,25 @@ pub struct ManifestFile {
 	pub sha256: Option<String>,
 }
 
-/// Defines a Manifest parsing error
-#[derive(Debug)]
+/// Defines a Manifest IO / parse error
+#[derive(Debug, Clone)]
 pub enum ManifestError {
-	Invalid
+	InvalidSyntax,
+	UnknownType,
 }
 impl std::fmt::Display for ManifestError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match *self {
-            ManifestError::Invalid => f.write_str("Invalid Manifest"),
-        }
-    }
+	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+		match *self {
+			ManifestError::InvalidSyntax => f.write_str("Manifest syntax is invalid."),
+			ManifestError::UnknownType => f.write_str("Could not determine format of manifest file."),
+		}
+	}
 }
 impl std::error::Error for ManifestError {
 	fn description(&self) -> &str {
-        match *self {
-            ManifestError::Invalid => "Failed to validated Manifest file.",
-        }
-    }
-}
-impl From<roxmltree::Error> for ManifestError {
-	fn from(_: roxmltree::Error) -> Self {
-		Self::Invalid
+		match *self {
+			ManifestError::InvalidSyntax => "Manifest syntax is invalid. At {}:{}",
+			ManifestError::UnknownType => "Could not determine format of manifest file.",
+		}
 	}
 }
