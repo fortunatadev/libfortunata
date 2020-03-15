@@ -1,7 +1,5 @@
-// --- Dependencies
-extern crate ureq;
-
 // --- Modules
+mod config;
 mod manifest;
 
 fn main() {

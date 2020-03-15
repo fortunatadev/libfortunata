@@ -1,11 +1,7 @@
-// --- Dependencies
-extern crate serde;
-extern crate toml;
-
 // --- Imports
-use super::{Manifest, ManifestError, ManifestFile, ManifestProfile};
+use super::{Manifest, ManifestFile, ManifestProfile};
+use super::super::ManifestError;
 use serde::{Deserialize, Serialize};
-use toml::Value::Table;
 
 /// Version identifier
 const VG_1_0_VERSION: &str = "vg-1.0";
@@ -179,7 +175,7 @@ impl<'a> From<&'a Manifest> for Manifest_VG_1_0<'a> {
 impl From<toml::ser::Error> for ManifestError {
 	fn from(item: toml::ser::Error) -> Self {
 		// All toml parsing errors result from invalid syntax.
-		ManifestError::InvalidSyntax
+		ManifestError::InvalidModel(item)
 	}
 }
 
@@ -187,7 +183,7 @@ impl From<toml::ser::Error> for ManifestError {
 impl From<toml::de::Error> for ManifestError {
 	fn from(item: toml::de::Error) -> Self {
 		// All toml parsing errors result from invalid syntax.
-		ManifestError::InvalidSyntax
+		ManifestError::InvalidSyntax(item)
 	}
 }
 
