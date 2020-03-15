@@ -22,7 +22,7 @@ architecture = "x64" # Applications with non-native architecture are hidden by d
 [[profile]]
 name = "Awesome App (Dev Mode)"
 exec = "app.exe"
-order = "1"
+order = 1
 params = "--debug --verbose"
 
 # A valid file *must* have a path and at least one url.
