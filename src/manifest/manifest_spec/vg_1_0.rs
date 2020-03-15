@@ -1,11 +1,7 @@
-// --- Dependencies
-extern crate serde;
-extern crate toml;
-
 // --- Imports
-use super::{Manifest, ManifestError, ManifestFile, ManifestProfile};
+use super::{Manifest, ManifestFile, ManifestProfile};
+use super::super::ManifestError;
 use serde::{Deserialize, Serialize};
-use toml::Value::Table;
 
 /// Version identifier
 const VG_1_0_VERSION: &str = "vg-1.0";
@@ -37,7 +33,7 @@ pub fn deserialize_manifest(manifest: &str) -> Result<Manifest, ManifestError> {
 #[serde(rename = "manifest")]
 #[allow(non_camel_case_types)]
 pub struct Manifest_VG_1_0<'a> {
-	/// Version identifier (ie, vg-1.0). Default is assumed to be tq-1.0 (Tequila XML spec).
+	/// Version identifier (ie, vg-1.0).
 	pub version: &'a str,
 	/// Global application name for the manifest.
 	pub label: &'a str,
@@ -179,7 +175,7 @@ impl<'a> From<&'a Manifest> for Manifest_VG_1_0<'a> {
 impl From<toml::ser::Error> for ManifestError {
 	fn from(item: toml::ser::Error) -> Self {
 		// All toml parsing errors result from invalid syntax.
-		ManifestError::InvalidSyntax
+		ManifestError::InvalidModel(item)
 	}
 }
 
@@ -187,77 +183,11 @@ impl From<toml::ser::Error> for ManifestError {
 impl From<toml::de::Error> for ManifestError {
 	fn from(item: toml::de::Error) -> Self {
 		// All toml parsing errors result from invalid syntax.
-		ManifestError::InvalidSyntax
+		ManifestError::InvalidSyntax(item)
 	}
 }
 
 // --- Tests
-
-#[test]
-fn should_deserialize() {
-	let test_toml = r#"
-		version = "vg-1.0"
-		label = "Test Manifest"
-		webpage = "https://example.com"
-		forums = "https://example.forums"
-		discord = "https://a.discord.invite"
-		rss = "https://example.com/some-rss-feed.rss"
-		poster_image = "https://example.com/some-image.png"
-
-		[[profile]]
-		name = "Awesome App"
-		exec = "app.exe"
-		order = 0
-		params = "--be-awesome"
-		icon = "https://example.com/icon.ico"
-		architecture = "x64"
-
-		[[profile]]
-		name = "Awesome App 2"
-		exec = "app2.exe"
-
-		[[file]]
-		path = "app.exe"
-		url = ["https://example.download.mirror/app.exe", "https://another.download.mirror/app.exe"]
-		size = 256
-		md5 = "a-real-hash"
-		sha1 = "a-realer-hash"
-		sha256 = "the-realest-hash"
-
-		[[file]]
-		path = "app2.exe"
-		url = ["https://example.download.mirror/app2.exe"]
-	"#;
-	let deser = deserialize_manifest(&test_toml).unwrap();
-
-	assert_eq!(deser.label, "Test Manifest");
-
-	assert_eq!(deser.profiles[0].name, "Awesome App");
-	assert_eq!(deser.profiles[0].exec, "app.exe");
-	assert_eq!(deser.profiles[0].order.unwrap(), 0);
-	assert_eq!(deser.profiles[0].params.as_ref().unwrap(), "--be-awesome");
-	assert_eq!(deser.profiles[0].architecture.as_ref().unwrap(), "x64");
-
-	assert_eq!(deser.profiles[1].name, "Awesome App 2");
-	assert_eq!(deser.profiles[1].exec, "app2.exe");
-
-	assert_eq!(deser.files[0].path, "app.exe");
-	assert_eq!(deser.files[0].url[0], "https://example.download.mirror/app.exe");
-	assert_eq!(deser.files[0].url[1], "https://another.download.mirror/app.exe");
-	assert_eq!(deser.files[0].size.unwrap(), 256);
-	assert_eq!(deser.files[0].md5.as_ref().unwrap(), "a-real-hash");
-	assert_eq!(deser.files[0].sha1.as_ref().unwrap(), "a-realer-hash");
-	assert_eq!(deser.files[0].sha256.as_ref().unwrap(), "the-realest-hash");
-
-	assert_eq!(deser.files[1].path, "app2.exe");
-	assert_eq!(deser.files[1].url[0], "https://example.download.mirror/app2.exe");
-
-	assert_eq!(deser.forums.unwrap(), "https://example.forums");
-	assert_eq!(deser.webpage.unwrap(), "https://example.com");
-	assert_eq!(deser.discord.unwrap(), "https://a.discord.invite");
-	assert_eq!(deser.rss.unwrap(), "https://example.com/some-rss-feed.rss");
-	assert_eq!(deser.poster_image.unwrap(), "https://example.com/some-image.png");
-}
 
 #[cfg(test)]
 mod tests {
@@ -347,5 +277,71 @@ mod tests {
 			path = "app2.exe"
 			url = ["https://example.download.mirror/app2.exe"]
 		"#.replace("\t", "").replacen("\n", "", 1));
+	}
+
+	#[test]
+	fn should_deserialize() {
+		let test_toml = r#"
+			version = "vg-1.0"
+			label = "Test Manifest"
+			webpage = "https://example.com"
+			forums = "https://example.forums"
+			discord = "https://a.discord.invite"
+			rss = "https://example.com/some-rss-feed.rss"
+			poster_image = "https://example.com/some-image.png"
+	
+			[[profile]]
+			name = "Awesome App"
+			exec = "app.exe"
+			order = 0
+			params = "--be-awesome"
+			icon = "https://example.com/icon.ico"
+			architecture = "x64"
+	
+			[[profile]]
+			name = "Awesome App 2"
+			exec = "app2.exe"
+	
+			[[file]]
+			path = "app.exe"
+			url = ["https://example.download.mirror/app.exe", "https://another.download.mirror/app.exe"]
+			size = 256
+			md5 = "a-real-hash"
+			sha1 = "a-realer-hash"
+			sha256 = "the-realest-hash"
+	
+			[[file]]
+			path = "app2.exe"
+			url = ["https://example.download.mirror/app2.exe"]
+		"#;
+		let deser = deserialize_manifest(&test_toml).unwrap();
+	
+		assert_eq!(deser.label, "Test Manifest");
+	
+		assert_eq!(deser.profiles[0].name, "Awesome App");
+		assert_eq!(deser.profiles[0].exec, "app.exe");
+		assert_eq!(deser.profiles[0].order.unwrap(), 0);
+		assert_eq!(deser.profiles[0].params.as_ref().unwrap(), "--be-awesome");
+		assert_eq!(deser.profiles[0].architecture.as_ref().unwrap(), "x64");
+	
+		assert_eq!(deser.profiles[1].name, "Awesome App 2");
+		assert_eq!(deser.profiles[1].exec, "app2.exe");
+	
+		assert_eq!(deser.files[0].path, "app.exe");
+		assert_eq!(deser.files[0].url[0], "https://example.download.mirror/app.exe");
+		assert_eq!(deser.files[0].url[1], "https://another.download.mirror/app.exe");
+		assert_eq!(deser.files[0].size.unwrap(), 256);
+		assert_eq!(deser.files[0].md5.as_ref().unwrap(), "a-real-hash");
+		assert_eq!(deser.files[0].sha1.as_ref().unwrap(), "a-realer-hash");
+		assert_eq!(deser.files[0].sha256.as_ref().unwrap(), "the-realest-hash");
+	
+		assert_eq!(deser.files[1].path, "app2.exe");
+		assert_eq!(deser.files[1].url[0], "https://example.download.mirror/app2.exe");
+	
+		assert_eq!(deser.forums.unwrap(), "https://example.forums");
+		assert_eq!(deser.webpage.unwrap(), "https://example.com");
+		assert_eq!(deser.discord.unwrap(), "https://a.discord.invite");
+		assert_eq!(deser.rss.unwrap(), "https://example.com/some-rss-feed.rss");
+		assert_eq!(deser.poster_image.unwrap(), "https://example.com/some-image.png");
 	}
 }

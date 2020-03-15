@@ -1,12 +1,8 @@
-// --- Dependencies
-extern crate serde;
-extern crate toml;
-
 // --- Modules
 pub mod manifest_spec;
 
 // --- Imports
-use manifest_spec::{Manifest,ManifestError};
+use manifest_spec::Manifest;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
@@ -26,5 +22,37 @@ pub fn deserialize_manifest(manifest: &str) -> Result<Manifest, ManifestError> {
 		},
 		// XML file types
 		Some(_) => manifest_spec::tq_xml::deserialize_manifest(&manifest)
+	}
+}
+
+/// Defines a Manifest IO / parse error
+#[derive(Debug)]
+pub enum ManifestError {
+	InvalidModel(toml::ser::Error),
+	InvalidSyntax(toml::de::Error),
+	InvalidXML(roxmltree::Error),
+	MissingRequiredValue(&'static str),
+	UnknownType,
+}
+impl std::fmt::Display for ManifestError {
+	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+		match *self {
+			ManifestError::InvalidModel(ref e) => e.fmt(f),
+			ManifestError::InvalidSyntax(ref e) => e.fmt(f),
+			ManifestError::InvalidXML(ref e) => e.fmt(f),
+			ManifestError::MissingRequiredValue(ref desc) => write!(f, "Missing required value: {}", desc),
+			ManifestError::UnknownType => write!(f, "Could not determine manifest format/version."),
+		}
+	}
+}
+impl std::error::Error for ManifestError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match *self {
+			ManifestError::InvalidModel(ref e) => Some(e),
+			ManifestError::InvalidSyntax(ref e) => Some(e),
+			ManifestError::InvalidXML(ref e) => Some(e),
+			ManifestError::MissingRequiredValue(ref _desc) => None,
+			ManifestError::UnknownType => None
+		}
 	}
 }

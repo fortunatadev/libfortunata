@@ -1,8 +1,6 @@
-/// --- Dependencies
-extern crate roxmltree;
-
 // --- Imports
-use super::{Manifest, ManifestError, ManifestFile, ManifestProfile};
+use super::{Manifest, ManifestFile, ManifestProfile};
+use super::super::ManifestError;
 use roxmltree::Document;
 
 // --- Consts
@@ -47,11 +45,10 @@ const INITAL_FILE_ALLOC: usize = 1024;
 pub fn deserialize_manifest(manifest: &str) -> Result<Manifest, ManifestError> {
 	// A Tequila manifest should only have one root element named `manifest`.
 	let xml_doc = Document::parse(manifest)?;
-	let xml_manifest = xml_doc.root().children().next().ok_or(ManifestError::InvalidSyntax)?;
+	let xml_manifest = xml_doc.root().children().next().ok_or(ManifestError::MissingRequiredValue(TQ_TAG_MANIFEST))?;
 	if !xml_manifest.is_element() || xml_manifest.tag_name().name() != TQ_TAG_MANIFEST {
-		return Err(ManifestError::InvalidSyntax);
+		return Err(ManifestError::MissingRequiredValue(TQ_TAG_MANIFEST));
 	}
-
 	// Init base return object
 	let mut manifest = Manifest {
 		version: TQ_VERSION.to_owned(),
@@ -72,7 +69,7 @@ pub fn deserialize_manifest(manifest: &str) -> Result<Manifest, ManifestError> {
 				TQ_TAG_PROFILES => parse_profiles(&node, &mut manifest)?,
 				TQ_TAG_FILELIST => parse_filelist(&node, &mut manifest)?,
 				TQ_TAG_FORUMS => parse_forums(&node, &mut manifest),
-				TQ_TAG_LABEL => manifest.label = node.text().map(String::from).ok_or(ManifestError::InvalidSyntax)?,
+				TQ_TAG_LABEL => manifest.label = node.text().map(String::from).ok_or(ManifestError::MissingRequiredValue(TQ_TAG_LABEL))?,
 				TQ_TAG_WEBPAGE => manifest.webpage = node.text().map(String::from),
 				TQ_TAG_POSTER => manifest.poster_image = node.attribute(TQ_ATTR_URL).map(String::from),
 				TQ_TAG_DISCORD => manifest.discord = node.text().map(String::from),
@@ -93,11 +90,11 @@ fn parse_profiles(profiles: &roxmltree::Node, manifest: &mut Manifest) -> Result
 				TQ_TAG_LAUNCH => manifest.profiles.push(ManifestProfile {
 					exec: node
 						.attribute(TQ_ATTR_EXEC)
-						.ok_or(ManifestError::InvalidSyntax)?
+						.ok_or(ManifestError::MissingRequiredValue(TQ_ATTR_EXEC))?
 						// Standardizes the occasional backslash in file paths
 						.replace("\\", "/")
 						.to_owned(),
-					name: node.text().ok_or(ManifestError::InvalidSyntax)?.to_owned(),
+					name: node.text().ok_or(ManifestError::MissingRequiredValue(TQ_ATTR_NAME))?.to_owned(),
 					params: node.attribute(TQ_ATTR_PARAMS).map(String::from),
 					icon: node.attribute(TQ_ATTR_ICON).map(String::from),
 					order: node.attribute(TQ_ATTR_ORDER).and_then(|a: &str| a.parse::<u8>().ok()),
@@ -119,7 +116,7 @@ fn parse_filelist(profiles: &roxmltree::Node, manifest: &mut Manifest) -> Result
 					let mut file = ManifestFile {
 						path: node
 							.attribute(TQ_ATTR_NAME)
-							.ok_or(ManifestError::InvalidSyntax)?
+							.ok_or(ManifestError::MissingRequiredValue(TQ_ATTR_NAME))?
 							// Standardizes the occasional backslash in file paths
 							.replace("\\", "/")
 							.to_owned(),
@@ -130,8 +127,10 @@ fn parse_filelist(profiles: &roxmltree::Node, manifest: &mut Manifest) -> Result
 						sha256: node.attribute(TQ_ATTR_SHA256).map(String::from),
 					};
 					for url_node in node.children().filter(|n| n.tag_name().name() == TQ_TAG_URL) {
-						file.url
-							.push(url_node.text().ok_or(ManifestError::InvalidSyntax)?.to_owned());
+						match url_node.text() {
+							Some(url) => file.url.push(url.to_owned()),
+							None => ()
+						}
 					}
 					manifest.files.push(file);
 				}
@@ -155,7 +154,7 @@ fn parse_forums(forums: &roxmltree::Node, manifest: &mut Manifest) {
 impl From<roxmltree::Error> for ManifestError {
 	fn from(item: roxmltree::Error) -> Self {
 		// All roxmltree parsing errors result from invalid syntax.
-		ManifestError::InvalidSyntax
+		ManifestError::InvalidXML(item)
 	}
 }
 

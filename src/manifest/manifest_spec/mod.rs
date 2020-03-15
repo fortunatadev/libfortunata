@@ -61,26 +61,3 @@ pub struct ManifestFile {
 	/// SHA256 hash of the file.
 	pub sha256: Option<String>,
 }
-
-/// Defines a Manifest IO / parse error
-#[derive(Debug, Clone)]
-pub enum ManifestError {
-	InvalidSyntax,
-	UnknownType,
-}
-impl std::fmt::Display for ManifestError {
-	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-		match *self {
-			ManifestError::InvalidSyntax => f.write_str("Manifest syntax is invalid."),
-			ManifestError::UnknownType => f.write_str("Could not determine format of manifest file."),
-		}
-	}
-}
-impl std::error::Error for ManifestError {
-	fn description(&self) -> &str {
-		match *self {
-			ManifestError::InvalidSyntax => "Manifest syntax is invalid. At {}:{}",
-			ManifestError::UnknownType => "Could not determine format of manifest file.",
-		}
-	}
-}
