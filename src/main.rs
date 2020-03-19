@@ -3,13 +3,11 @@ pub mod config;
 pub mod manifest;
 
 fn main() {
-    let def = config::get_default_config();
-    let cfg = config::read_config_file();
+    let cfg = config::get_config();
 
-    println!("{:#?}", def);
     println!("{:#?}", cfg);
 
-    config::write_config_file(&def).unwrap();
+    config::write_config_file(&cfg).unwrap();
 	// // Get Manifest
 	// let http_manifest = ureq::get(&std::env::var("VG_MANIFEST").unwrap()).call();
 	// if http_manifest.ok() {

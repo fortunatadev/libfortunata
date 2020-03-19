@@ -4,6 +4,7 @@ use std::error;
 use std::fmt;
 use std::fs;
 use std::io;
+use std::path;
 
 // --- Consts
 /// Version identifier
@@ -11,18 +12,21 @@ pub const CFG_VERSION: &str = "1.0";
 /// Config file name
 pub const CFG_FILE_NAME: &str = "vanguard.toml";
 
-/// Returns hardcoded default config
-pub fn get_default_config() -> Config {
-    Default::default()
+/// Gets current application config
+pub fn get_config() -> Config {
+    match read_config_file() {
+        Ok(cfg_from_file) => cfg_from_file,
+        Err(err) => {
+            println!("{:?}", err);
+            Default::default()
+        }
+    }
 }
 
 /// Reads config entires from a `vanguard.toml` file.
 pub fn read_config_file() -> Result<Config, ConfigError> {
-    // Build file path
-    let mut cfg_file_path = std::env::current_dir()?;
-    cfg_file_path.push(CFG_FILE_NAME);
     // Read file
-    let cfg_file_contents = fs::read_to_string(cfg_file_path)?;
+    let cfg_file_contents = fs::read_to_string(get_cfg_file_path()?)?;
     // Attempt toml parse
     let config = toml::de::from_str(&cfg_file_contents)?;
     Ok(config)
@@ -30,19 +34,19 @@ pub fn read_config_file() -> Result<Config, ConfigError> {
 
 /// Writes a Config object back to disk as `vanguard.toml`.
 pub fn write_config_file(config: &Config) -> Result<(), ConfigError> {
-    // Build file path
-    let mut cfg_file_path = std::env::current_dir()?;
-    cfg_file_path.push(CFG_FILE_NAME);
     // Serialize current config
     let cfg_toml = toml::ser::to_string(config)?;
     // Write file
-    fs::write(cfg_file_path, cfg_toml)?;
+    fs::write(get_cfg_file_path()?, cfg_toml)?;
     Ok(())
 }
 
-// fn get_cfg_file_path() -> String {
-
-// }
+/// Gets the current application directory as a PathBuf.
+fn get_cfg_file_path() -> Result<path::PathBuf, ConfigError> {
+    let mut cfg_file_path = std::env::current_dir()?;
+    cfg_file_path.push(CFG_FILE_NAME);
+    Ok(cfg_file_path)
+}
 
 /// Config file data model
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -50,8 +54,6 @@ pub fn write_config_file(config: &Config) -> Result<(), ConfigError> {
 pub struct Config {
     /// Version identifier for config file
     version: String,
-    /// Default download path for new manifests. Default is app root.
-    download_path: Option<String>,
     /// Maximum parallel file workers to use.
     maximum_parallel_files: u8,
     /// If true,
@@ -64,7 +66,6 @@ impl Default for Config {
     fn default() -> Config {
         Config {
             version: CFG_VERSION.to_owned(),
-            download_path: None,
             maximum_parallel_files: 4,
             use_symlinked_storage: true,
             manifests: Vec::new()
@@ -74,29 +75,17 @@ impl Default for Config {
 
 /// Per-manifest config data model
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(default)]
 pub struct ManifestConfig {
     /// URL of the manifest. Config entires without a manifest URL will be ignored.
     url: String,
     /// If true, allows patching from non-https mirrors.
     allow_insecure_patching: bool,
-    /// Download path for the specific manifest. Overrides global setting. Default is app root.
-    download_path: Option<String>,
+    /// Path to which application files are downloaded.
+    application_path: String,
     /// If true, checksumming is not performed on files.
     ignore_checksum: bool,
     /// Vec of launcher profiles to hide, by name.
     ignore_profiles: Vec<String>,
-}
-impl Default for ManifestConfig {
-    fn default() -> ManifestConfig {
-        ManifestConfig {
-            url: String::new(),
-            allow_insecure_patching: false,
-            download_path: None,
-            ignore_checksum: false,
-            ignore_profiles: Vec::new()
-        }
-    }
 }
 
 /// Wrapper for config-related errors.
