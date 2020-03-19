@@ -111,6 +111,12 @@ fn parse_profiles(profiles: &roxmltree::Node, manifest: &mut Manifest) -> Result
 fn parse_filelist(profiles: &roxmltree::Node, manifest: &mut Manifest) -> Result<(), ManifestError> {
 	for node in profiles.children() {
 		if node.is_element() {
+			let size = node.attribute(TQ_ATTR_SIZE).and_then(|a: &str| a.parse::<u64>().ok());
+			// Size = 0 is used as a delete flag in vanilla Tequila. For security reasons,
+			// Vanguard will not delete a file it did not first download, so 0-size files are skipped.
+			if size.is_some() && size.unwrap() == 0 {
+				continue;
+			}
 			match node.tag_name().name() {
 				TQ_TAG_FILE => {
 					let mut file = ManifestFile {
@@ -121,7 +127,7 @@ fn parse_filelist(profiles: &roxmltree::Node, manifest: &mut Manifest) -> Result
 							.replace("\\", "/")
 							.to_owned(),
 						url: Vec::<String>::with_capacity(INITIAL_URL_ALLOC),
-						size: node.attribute(TQ_ATTR_SIZE).and_then(|a: &str| a.parse::<u64>().ok()),
+						size: size,
 						md5: node.attribute(TQ_ATTR_MD5).map(String::from),
 						sha1: node.attribute(TQ_ATTR_SHA1).map(String::from),
 						sha256: node.attribute(TQ_ATTR_SHA256).map(String::from),
@@ -182,6 +188,9 @@ mod tests {
 					<file name="app2.exe">
 						<url>https://example.download.mirror/app2.exe</url>
 					</file>
+					<file name="ignored.dll" size="0">
+						<url>https://example.download.mirror/ignored.dll</url>
+					</file>
 				</filelist>
 				<forums>
 					<forum name="Awesome Forums" url="https://example.forums" />
@@ -212,6 +221,8 @@ mod tests {
 
 		assert_eq!(deser.files[1].path, "app2.exe");
 		assert_eq!(deser.files[1].url[0], "https://example.download.mirror/app2.exe");
+
+		assert_eq!(deser.files.len(), 2);
 
 		assert_eq!(deser.forums.unwrap(), "https://example.forums");
 		assert_eq!(deser.webpage.unwrap(), "https://example.com");
