@@ -28,7 +28,7 @@ params = "--debug --verbose"
 # A valid file *must* have a path and at least one url.
 [[file]]
 path = "bin/app.exe" # Local file path to the file
-url = [ # List of download mirrors in order of preference.
+mirrors = [ # List of download mirrors in order of preference.
     "https://your.application.website/app.exe",
     "https://another.mirror/app.exe",
     "http://an.insecure.mirror/app.exe" # Will be ignored if secure patching is enabled (default).
@@ -44,7 +44,7 @@ size = 256 # File size in bytes.
 
 [[file]]
 path = "lib/awesome.dll"
-url = [
+mirrors = [
     "https://your.application.website/awesome.dll",
     "https://another.mirror/app.dll"
 ]

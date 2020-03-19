@@ -45,19 +45,19 @@ pub struct ManifestProfile {
 	pub architecture: Option<String>,
 }
 
-/// Defines a patchable file. MD5, SHA1, or SHA256 is required for secure patching.
+/// Defines a patchable file. MD5, SHA1, or sha256 is required for secure patching.
 #[derive(Debug, Clone)]
 pub struct ManifestFile {
 	/// Filepath of the file on disk, relative to app dir.
 	pub path: String,
 	/// URL(s) to retrieve the file from.
-	pub url: Vec<String>,
+	pub mirrors: Vec<String>,
 	/// Size in bytes of the file.
 	pub size: Option<u64>,
 	/// MD5 hash of the file.
 	pub md5: Option<String>,
 	/// SHA1 hash of the file.
 	pub sha1: Option<String>,
-	/// SHA256 hash of the file.
+	/// sha256 hash of the file.
 	pub sha256: Option<String>,
 }

@@ -1,9 +1,6 @@
 // --- Imports
 use serde::{Deserialize, Serialize};
-use std::error;
-use std::fmt;
 use std::fs;
-use std::io;
 use std::path;
 
 // --- Consts
@@ -53,21 +50,18 @@ fn get_cfg_file_path() -> Result<path::PathBuf, ConfigError> {
 #[serde(default)]
 pub struct Config {
     /// Version identifier for config file
-    version: String,
+    pub version: String,
     /// Maximum parallel file workers to use.
-    maximum_parallel_files: u8,
-    /// If true,
-    use_symlinked_storage: bool,
+    pub maximum_parallel_files: u8,
     /// Array-table of manifests in use
     #[serde(rename = "manifest")]
-    manifests: Vec<ManifestConfig>,
+    pub manifests: Vec<ManifestConfig>,
 }
 impl Default for Config {
     fn default() -> Config {
         Config {
             version: CFG_VERSION.to_owned(),
             maximum_parallel_files: 4,
-            use_symlinked_storage: true,
             manifests: Vec::new()
         }
     }
@@ -77,27 +71,31 @@ impl Default for Config {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ManifestConfig {
     /// URL of the manifest. Config entires without a manifest URL will be ignored.
-    url: String,
+    pub url: String,
+    /// If true, allows Vanguard to modify files outside the `application_path`.
+    /// This is __extremely unsafe__, and may allow Vanguard to modify system files.
+    pub allow_unsafe_file_paths: bool,
     /// If true, allows patching from non-https mirrors.
-    allow_insecure_patching: bool,
+    pub allow_insecure_patching: bool,
     /// Path to which application files are downloaded.
-    application_path: String,
-    /// If true, checksumming is not performed on files.
-    ignore_checksum: bool,
-    /// Vec of launcher profiles to hide, by name.
-    ignore_profiles: Vec<String>,
+    pub application_path: String,
+    /// If true, file consistency hash checks are not performed on files.
+    pub ignore_hash_check: bool,
+    /// If true, files are downloaded to a central location
+    /// and application directories are built using symlinks
+    pub use_symlinked_storage: bool,
 }
 
 /// Wrapper for config-related errors.
 #[derive(Debug)]
 pub enum ConfigError {
-    FileIO(io::Error),
+    FileIO(std::io::Error),
     InvalidConfig(String),
     InvalidModel(toml::ser::Error),
     InvalidSyntax(toml::de::Error)
 }
-impl fmt::Display for ConfigError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl std::fmt::Display for ConfigError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match *self {
             ConfigError::FileIO(ref e) => e.fmt(f),
             ConfigError::InvalidConfig(ref desc) => write!(f, "Invalid config - {}", desc),
@@ -106,8 +104,8 @@ impl fmt::Display for ConfigError {
         }
     }
 }
-impl error::Error for ConfigError {
-    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
+impl std::error::Error for ConfigError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match *self {
             ConfigError::FileIO(ref e) => Some(e),
             ConfigError::InvalidConfig(ref _desc) => None,
@@ -116,8 +114,8 @@ impl error::Error for ConfigError {
         }
     }
 }
-impl From<io::Error> for ConfigError {
-    fn from(item: io::Error) -> ConfigError {
+impl From<std::io::Error> for ConfigError {
+    fn from(item: std::io::Error) -> ConfigError {
         ConfigError::FileIO(item)
     }
 }

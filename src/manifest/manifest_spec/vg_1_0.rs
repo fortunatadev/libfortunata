@@ -73,21 +73,21 @@ pub struct MF_Profile_VG_1_0<'a> {
 	pub architecture: Option<&'a str>,
 }
 
-/// Defines a patchable file. MD5, SHA1, or SHA256 is required for secure patching.
+/// Defines a patchable file. MD5, SHA1, or sha256 is required for secure patching.
 #[derive(Debug, Serialize, Deserialize)]
 #[allow(non_camel_case_types)]
 pub struct MF_File_VG_1_0<'a> {
 	/// Filepath of the file on disk, relative to app dir.
 	pub path: &'a str,
 	/// URL(s) to retrieve the file from.
-	pub url: Vec<&'a str>,
+	pub mirrors: Vec<&'a str>,
 	/// Size in bytes of the file.
 	pub size: Option<u64>,
 	/// MD5 hash of the file.
 	pub md5: Option<&'a str>,
 	/// SHA1 hash of the file.
 	pub sha1: Option<&'a str>,
-	/// SHA256 hash of the file.
+	/// sha256 hash of the file.
 	pub sha256: Option<&'a str>,
 }
 
@@ -123,7 +123,7 @@ impl From<MF_File_VG_1_0<'_>> for ManifestFile {
 	fn from(item: MF_File_VG_1_0) -> Self {
 		Self {
 			path: item.path.to_owned(),
-			url: item.url.into_iter().map(String::from).collect(),
+			mirrors: item.mirrors.into_iter().map(String::from).collect(),
 			size: item.size,
 			md5: item.md5.map(String::from),
 			sha1: item.sha1.map(String::from),
@@ -155,7 +155,7 @@ impl<'a> From<&'a Manifest> for Manifest_VG_1_0<'a> {
 				.iter()
 				.map(|e| MF_File_VG_1_0::<'a> {
 					path: e.path.as_str(),
-					url: e.url.iter().map(|u| u.as_str()).collect(),
+					mirrors: e.mirrors.iter().map(|u| u.as_str()).collect(),
 					size: e.size,
 					md5: e.md5.as_deref(),
 					sha1: e.sha1.as_deref(),
@@ -217,7 +217,7 @@ mod tests {
 			}],
 			files: vec![ManifestFile {
 				path: "app.exe".to_owned(),
-				url: vec![
+				mirrors: vec![
 					"https://example.download.mirror/app.exe".to_owned(),
 					"https://another.download.mirror/app.exe".to_owned(),
 				],
@@ -228,7 +228,7 @@ mod tests {
 			},
 			ManifestFile {
 				path: "app2.exe".to_owned(),
-				url: vec![
+				mirrors: vec![
 					"https://example.download.mirror/app2.exe".to_owned(),
 				],
 				size: None,
@@ -267,7 +267,7 @@ mod tests {
 
 			[[file]]
 			path = "app.exe"
-			url = ["https://example.download.mirror/app.exe", "https://another.download.mirror/app.exe"]
+			mirrors = ["https://example.download.mirror/app.exe", "https://another.download.mirror/app.exe"]
 			size = 256
 			md5 = "a-real-hash"
 			sha1 = "a-realer-hash"
@@ -275,7 +275,7 @@ mod tests {
 
 			[[file]]
 			path = "app2.exe"
-			url = ["https://example.download.mirror/app2.exe"]
+			mirrors = ["https://example.download.mirror/app2.exe"]
 		"#.replace("\t", "").replacen("\n", "", 1));
 	}
 
@@ -304,7 +304,7 @@ mod tests {
 	
 			[[file]]
 			path = "app.exe"
-			url = ["https://example.download.mirror/app.exe", "https://another.download.mirror/app.exe"]
+			mirrors = ["https://example.download.mirror/app.exe", "https://another.download.mirror/app.exe"]
 			size = 256
 			md5 = "a-real-hash"
 			sha1 = "a-realer-hash"
@@ -312,7 +312,7 @@ mod tests {
 	
 			[[file]]
 			path = "app2.exe"
-			url = ["https://example.download.mirror/app2.exe"]
+			mirrors = ["https://example.download.mirror/app2.exe"]
 		"#;
 		let deser = deserialize_manifest(&test_toml).unwrap();
 	
@@ -328,15 +328,15 @@ mod tests {
 		assert_eq!(deser.profiles[1].exec, "app2.exe");
 	
 		assert_eq!(deser.files[0].path, "app.exe");
-		assert_eq!(deser.files[0].url[0], "https://example.download.mirror/app.exe");
-		assert_eq!(deser.files[0].url[1], "https://another.download.mirror/app.exe");
+		assert_eq!(deser.files[0].mirrors[0], "https://example.download.mirror/app.exe");
+		assert_eq!(deser.files[0].mirrors[1], "https://another.download.mirror/app.exe");
 		assert_eq!(deser.files[0].size.unwrap(), 256);
 		assert_eq!(deser.files[0].md5.as_ref().unwrap(), "a-real-hash");
 		assert_eq!(deser.files[0].sha1.as_ref().unwrap(), "a-realer-hash");
 		assert_eq!(deser.files[0].sha256.as_ref().unwrap(), "the-realest-hash");
 	
 		assert_eq!(deser.files[1].path, "app2.exe");
-		assert_eq!(deser.files[1].url[0], "https://example.download.mirror/app2.exe");
+		assert_eq!(deser.files[1].mirrors[0], "https://example.download.mirror/app2.exe");
 	
 		assert_eq!(deser.forums.unwrap(), "https://example.forums");
 		assert_eq!(deser.webpage.unwrap(), "https://example.com");
