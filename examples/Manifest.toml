@@ -27,7 +27,7 @@ params = "--debug --verbose"
 
 # A valid file *must* have a path and at least one url.
 [[file]]
-path = "bin/app.exe" # Local file path to the file
+path = "bin/app.exe" # Local file path to save the file. This path is relative to the app root chosen by the user, and must be a child of it.
 mirrors = [ # List of download mirrors in order of preference.
     "https://your.application.website/app.exe",
     "https://another.mirror/app.exe",
@@ -40,6 +40,7 @@ md5 = "587bb16b7ae57a697c5381b20253e80a"
 sha1 = "6af7bb1928af5bff4f953a6fcf85a9ca61f9af3a"
 sha256 = "6a62362c11e91c9f8205c47bbb30833a257c979f663b9a73d3c814ce228fe3dd"
 # File size may optionally be specified to improve memory allocation for downloading.
+# In Tequila XML manifests, files of size 0 will be ignored as this was used as a delete flag.
 size = 256 # File size in bytes.
 
 [[file]]

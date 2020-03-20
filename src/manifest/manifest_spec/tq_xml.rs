@@ -32,7 +32,7 @@ const TQ_ATTR_SIZE: &str = "size";
 const TQ_ATTR_MD5: &str = "md5";
 // --- Attributes added by Vanguard, not officially supported by Tequila spec
 const TQ_ATTR_SHA1: &str = "sha1";
-const TQ_ATTR_sha256: &str = "sha256";
+const TQ_ATTR_SHA256: &str = "sha256";
 
 const INITIAL_PROFILE_ALLOC: usize = 127;
 const INITIAL_URL_ALLOC: usize = 127;
@@ -130,7 +130,7 @@ fn parse_filelist(profiles: &roxmltree::Node, manifest: &mut Manifest) -> Result
 						size: size,
 						md5: node.attribute(TQ_ATTR_MD5).map(String::from),
 						sha1: node.attribute(TQ_ATTR_SHA1).map(String::from),
-						sha256: node.attribute(TQ_ATTR_sha256).map(String::from),
+						sha256: node.attribute(TQ_ATTR_SHA256).map(String::from),
 					};
 					for url_node in node.children().filter(|n| n.tag_name().name() == TQ_TAG_URL) {
 						match url_node.text() {
