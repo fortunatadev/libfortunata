@@ -9,37 +9,39 @@ pub const CFG_VERSION: &str = "1.0";
 /// Config file name
 pub const CFG_FILE_NAME: &str = "vanguard.toml";
 
-/// Gets current application config
-pub fn get_config() -> Config {
-    match read_config_file() {
-        Ok(cfg_from_file) => cfg_from_file,
-        Err(err) => {
-            println!("{:?}", err);
-            Default::default()
-        }
-    }
-}
-
 /// Reads config entires from a `vanguard.toml` file.
-pub fn read_config_file() -> Result<Config, ConfigError> {
+/// # Arguments
+/// * `path` - Optional string slice specifying file path. Default is %vanguard-dir%/vanguard.toml.
+pub fn read_config_file(path: Option<&str>) -> Result<Config, ConfigError> {
     // Read file
-    let cfg_file_contents = fs::read_to_string(get_cfg_file_path()?)?;
+    let file_path = match path {
+        Some(val) => path::PathBuf::from(val.to_owned()),
+        None => get_default_cfg_file_path()?
+    };
+    let cfg_file_contents = fs::read_to_string(file_path)?;
     // Attempt toml parse
     let config = toml::de::from_str(&cfg_file_contents)?;
     Ok(config)
 }
 
 /// Writes a Config object back to disk as `vanguard.toml`.
-pub fn write_config_file(config: &Config) -> Result<(), ConfigError> {
+/// /// # Arguments
+/// * `config` - Config struct containing the config values to write
+/// * `path` - Optional string slice specifying file path. Default is %vanguard-dir%/vanguard.toml.
+pub fn write_config_file(config: &Config, path: Option<&str>) -> Result<(), ConfigError> {
     // Serialize current config
     let cfg_toml = toml::ser::to_string(config)?;
     // Write file
-    fs::write(get_cfg_file_path()?, cfg_toml)?;
+    let file_path = match path {
+        Some(val) => path::PathBuf::from(val.to_owned()),
+        None => get_default_cfg_file_path()?
+    };
+    fs::write(file_path, cfg_toml)?;
     Ok(())
 }
 
 /// Gets the current application directory as a PathBuf.
-fn get_cfg_file_path() -> Result<path::PathBuf, ConfigError> {
+pub fn get_default_cfg_file_path() -> Result<path::PathBuf, ConfigError> {
     let mut cfg_file_path = std::env::current_dir()?;
     cfg_file_path.push(CFG_FILE_NAME);
     Ok(cfg_file_path)
@@ -51,8 +53,6 @@ fn get_cfg_file_path() -> Result<path::PathBuf, ConfigError> {
 pub struct Config {
     /// Version identifier for config file
     pub version: String,
-    /// Maximum parallel file workers to use.
-    pub maximum_parallel_files: u8,
     /// Array-table of manifests in use
     #[serde(rename = "manifest")]
     pub manifests: Vec<ManifestConfig>,
@@ -61,7 +61,6 @@ impl Default for Config {
     fn default() -> Config {
         Config {
             version: CFG_VERSION.to_owned(),
-            maximum_parallel_files: 4,
             manifests: Vec::new()
         }
     }
@@ -79,8 +78,12 @@ pub struct ManifestConfig {
     pub allow_insecure_patching: bool,
     /// Path to which application files are downloaded.
     pub application_path: String,
+    /// If true, Vanguard will destroy and completely rebuild the application directory on next sync.
+    pub force_clean_sync: bool,
     /// If true, file consistency hash checks are not performed on files.
     pub ignore_hash_check: bool,
+    /// Maximum parallel file workers to use.
+    pub maximum_parallel_files: u8,
     /// If true, files are downloaded to a central location
     /// and application directories are built using symlinks
     pub use_symlinked_storage: bool,

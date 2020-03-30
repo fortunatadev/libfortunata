@@ -7,7 +7,7 @@ fn main() {
     println!("Initializing Vanguard...");
 
     // Get config
-    let cfg = config::get_config();
+    let cfg = config::read_config_file(None).unwrap();
     warn_unsafe_config(&cfg);
     
 	// Get Manifest
@@ -28,7 +28,7 @@ fn warn_unsafe_config(config: &config::Config) {
     for mf_cfg in &config.manifests {
         if mf_cfg.allow_insecure_patching {
             println!("WARNING: allow_insecure_patching enabled for manifest: {}", mf_cfg.url);
-            println!("         Non-secure HTTP download mirrors may be used, which may be vulnerable to man-in-the-middle attacks.");
+            println!("         Insecure HTTP download mirrors may be used, which could possibly be used to send malicious code.");
         }
         if mf_cfg.ignore_hash_check {
             println!("WARNING: ignore_hash_check enabled for manifest: {}", mf_cfg.url);

@@ -4,7 +4,7 @@ use super::super::ManifestError;
 use serde::{Deserialize, Serialize};
 
 /// Version identifier
-const VG_1_0_VERSION: &str = "vg-1.0";
+pub const VERSION: &str = "vg-1.0";
 
 /// Serializes the contents of a `Manifest` into a Vanguard 1.0 (`vg-1.0`) TOML format.
 /// Note that properties not supported in `vg-1.0` will be silently dropped.
@@ -13,7 +13,7 @@ const VG_1_0_VERSION: &str = "vg-1.0";
 pub fn serialize_manifest<'a>(manifest: &'a Manifest) -> Result<String, ManifestError> {
 	// Cast to the versioned struct and overwrite the version property.
 	let mut versioned_manifest: Manifest_VG_1_0 = manifest.into();
-	versioned_manifest.version = VG_1_0_VERSION;
+	versioned_manifest.version = VERSION;
 	// Serialize
 	let serialized = toml::to_string(&versioned_manifest)?;
 	Ok(serialized)

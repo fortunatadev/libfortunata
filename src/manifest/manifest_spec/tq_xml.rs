@@ -4,7 +4,7 @@ use super::super::ManifestError;
 use roxmltree::Document;
 
 // --- Consts
-const TQ_VERSION: &str = "tq-xml";
+pub const VERSION: &str = "tq-xml";
 
 const TQ_TAG_MANIFEST: &str = "manifest";
 const TQ_TAG_LABEL: &str = "label";
@@ -51,8 +51,8 @@ pub fn deserialize_manifest(manifest: &str) -> Result<Manifest, ManifestError> {
 	}
 	// Init base return object
 	let mut manifest = Manifest {
-		version: TQ_VERSION.to_owned(),
-		label: "None".to_owned(),
+		version: VERSION.to_owned(),
+		label: "Unknown".to_owned(),
 		profiles: Vec::<ManifestProfile>::with_capacity(INITIAL_PROFILE_ALLOC),
 		files: Vec::<ManifestFile>::with_capacity(INITAL_FILE_ALLOC),
 		webpage: None,

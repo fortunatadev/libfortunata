@@ -9,9 +9,9 @@ const PARTIAL_FILE_EXT: &str = ".part";
 
 /// Syncs application files as described in a Manifest file, downloading, deleting,
 /// and modifying filesystem contents as necessary.
-pub fn sync_manifest_files<'a>(manifest: &Manifest, config: &ManifestConfig) -> Result<Vec<SyncResult<'a>>, SyncError> {
+pub fn sync_manifest_files<'a>(manifest: &Manifest, config: &ManifestConfig) -> Result<Vec<SyncFileResult<'a>>, SyncError> {
     // Init result container
-    let mut result_vec: Vec<SyncResult> = Vec::with_capacity(manifest.files.len());
+    let mut result_vec: Vec<SyncFileResult> = Vec::with_capacity(manifest.files.len());
 
     // Get current vanguard root dir
     let root_path = std::env::current_dir()?;
@@ -27,7 +27,7 @@ pub fn sync_manifest_files<'a>(manifest: &Manifest, config: &ManifestConfig) -> 
         .canonicalize()?
         .into_os_string()
         .into_string()
-        .or(Err(SyncError::BadPath(String::from("Could not determine local file path."))))?;
+        .or(Err(SyncError::BadPath(String::from("Could not determine the Vanguard application directory."))))?;
 
     // Prevent syncs to the Vanguard root directory.
     if abs_root_path == abs_app_path {
@@ -51,7 +51,7 @@ pub fn sync_manifest_files<'a>(manifest: &Manifest, config: &ManifestConfig) -> 
 
         // Check path safety (inside app dir)
         if !config.allow_unsafe_file_paths && !abs_file_path.starts_with(&abs_app_path) {
-            result_vec.push(SyncResult {
+            result_vec.push(SyncFileResult {
                 path: file_path,
                 error: Some("File path resolved to an unsafe location outside the main app directory.")
             });
@@ -81,11 +81,15 @@ fn check_sync_state(path: PathBuf) {
 }
 
 /// Defines the result of a file sync. Any result with a non-None `err` is considered an error response.
-pub struct SyncResult<'a> {
+pub struct SyncFileResult<'a> {
     /// Absolute path to the file on the filesystem
     pub path: PathBuf,
     /// Error description. If set, result is assumed to be an error.
     pub error: Option<&'a str>
+}
+
+struct SyncTask {
+    
 }
 
 /// Sync-related errors
