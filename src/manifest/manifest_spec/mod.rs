@@ -61,3 +61,10 @@ pub struct ManifestFile {
 	/// sha256 hash of the file.
 	pub sha256: Option<String>,
 }
+
+/// Enum of all supported file hash algorithms.
+pub enum FileHashAlg {
+	md5,
+	sha1,
+	sha256
+}

@@ -25,6 +25,21 @@ pub fn deserialize_manifest(manifest: &str) -> Result<Manifest, ManifestError> {
 	}
 }
 
+/// Serializes the contents of a `Manifest` into a a Vanguard TOML format.
+/// This serialize function will output the latest `vg` manifest version.
+/// Properties not supported in that format may be silently dropped.
+/// To output a specific version, use a specific submodule serializer.
+/// # Arguments
+/// * `manifest` - The Manifest object.
+pub fn serialize_manifest<'a>(manifest: &'a Manifest) -> Result<String, ManifestError> {
+	// Cast to the versioned struct and overwrite the version property.
+	let mut versioned_manifest: manifest_spec::vg_1_0::Manifest_VG_1_0 = manifest.into();
+	versioned_manifest.version = manifest_spec::vg_1_0::VERSION;
+	// Serialize
+	let serialized = toml::to_string(&versioned_manifest)?;
+	Ok(serialized)
+}
+
 /// Defines a Manifest IO / parse error
 #[derive(Debug)]
 pub enum ManifestError {
