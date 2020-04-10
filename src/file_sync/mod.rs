@@ -1,8 +1,8 @@
 // --- Imports
+use futures::Stream;
 use path_abs::PathAbs;
 use std::fs;
 use std::path::{Path,PathBuf};
-use std::sync::{Arc,Mutex};
 use super::config::ManifestConfig;
 use super::manifest::manifest_spec::{Manifest,ManifestFile,FileHashAlg};
 
@@ -11,9 +11,10 @@ const PARTIAL_FILE_EXT: &str = ".part";
 
 /// Syncs application files as described in a Manifest file, downloading, deleting,
 /// and modifying filesystem contents as necessary.
-pub fn sync_manifest_files<'a>(manifest: &Manifest, config: &ManifestConfig) -> Result<Vec<SyncFileResult<'a>>, SyncError> {
-    // Init result container
-    let mut result_vec: Vec<SyncFileResult> = Vec::with_capacity(manifest.files.len());
+///
+/// Returns a Stream of SyncResults, which must be tracked by the calling function to determine state
+/// or an error if an unrecoverable error occurs before starting the sync.
+pub fn sync_streaming<'a>(manifest: &Manifest, config: &ManifestConfig) -> Result<Box<dyn Stream<Item = SyncResult>>, SyncError> {
 
     // Get current vanguard root dir
     let vg_path = PathAbs::new(std::env::current_dir()?)?;
@@ -31,6 +32,8 @@ pub fn sync_manifest_files<'a>(manifest: &Manifest, config: &ManifestConfig) -> 
     // TODO: this
     // TODO: needed for symlink storage?
     // TODO: Multithreaaaad
+
+    // Make and return the stream.
 
     for file in &manifest.files {
         // Build local file path and temp file path
@@ -88,23 +91,55 @@ fn resolve_best_hash(file: &ManifestFile) -> Option<(&str, FileHashAlg)> {
 }
 
 /// Defines the result of a file sync. Any result with a non-None `err` is considered an error response.
-pub struct SyncFileResult<'a> {
+pub struct SyncResult {
+    /// Success flag
+    pub success: bool,
     /// Absolute path to the file on the filesystem
-    pub path: Option<&'a str>,
+    pub path: String,
     /// Error description. If set, result is assumed to be an error.
-    pub error: Option<&'a str>
+    pub error: String,
+}
+
+/// Defines the current state of a file sync operation sent over a sync stream.
+pub struct SyncReport {
+    /// Current state of the operation
+    pub state: SyncState,
+    /// File operation being performed
+    pub op: SyncOp,
+    /// Filepath of the current file
+    pub filepath: String,
+    /// Bytes synced
+    pub bytesDone: u64,
+    /// Bytes remaining to sync
+    pub bytesRemaining: u64
 }
 
 /// Defines a SyncTask, which are calculated per-file by comparing sync and state Manifests
 struct SyncTask {
-    file: ManifestFile,
-    op: SyncOp
+    op: SyncOp,
+    filepath: String,
 }
 
 /// Sync operations
-enum SyncOp {
+pub enum SyncOp {
+    /// Creating a new file
+    create,
+    /// Patching existing file
     update,
+    /// Deleting a file
     delete
+}
+
+/// Sync state
+pub enum SyncState {
+    /// File operation completed successfully
+    success,
+    /// File operation is processing without errors
+    working,
+    /// File operation had a recoverable error and will retry
+    retry,
+    /// File operation had an unrecoverable error
+    error
 }
 
 /// Sync-related errors

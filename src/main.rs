@@ -16,7 +16,7 @@ fn main() {
         println!("Got manifest.");
         let manifest = manifest::deserialize_manifest(&http_manifest.into_string().unwrap()).unwrap();
         println!("Starting file sync...");
-        file_sync::sync_manifest_files(&manifest, &cfg.manifests[0]).unwrap();
+        file_sync::sync_streaming(&manifest, &cfg.manifests[0]).unwrap();
     }
     else {
         panic!("Manifest get failed.");
