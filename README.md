@@ -1,18 +1,16 @@
-# Vanguard Patcher
+# Libvanguard
 
 Vanguard is a multipurpose application patcher and launcher that expands on the design of [Tequila](https://github.com/leandrotlz/Tequila) and [Cream Soda](https://github.com/thunderspynetwork/creamsoda).
 
 Vanguard uses an entirely rebuilt Rust codebase designed to be both more efficient and more secure by supporting parallel downloads, deduping files where possible, and enforcing checksumming and patching over https.
 
-## Installation
+## Vanguard Library
 
-Vanguard patcher is not normally installed and used on its own, but as a backend for the [Vanguard Launcher](https://github.com/vanguarddev/vanguard-launcher). Please consult the information that is (hopefully) provided by application teams for information on how to download and use the launcher.
+Libvanguard provides a low-level ABI for interfacing with Vanguard-based applications. If you're looking for the first-party Vanguard patcher/launcher GUI, look at [Vanguard Launcher](https://github.com/vanguarddev/vanguard-launcher).
 
-Binary distributions will be provided, but they will not be configured for any specific application.
+TODO: Link to Rust docs when published.
 
-## Configuration
-
-The `vanguard.toml` file in the project root may be used for configuration. Ordinarily, configuration will be handled by the Launcher rather than by direct file edits.
+TODO: Binary distributions.
 
 ## Manifest Files
 
@@ -21,6 +19,10 @@ Vanguard uses Manifest files to determine what files to download and update. Teq
 Vanguard's native Manifest format is stored as [TOML](https://github.com/toml-lang/toml), which enforces a more regular and easily parsable data structure than XML. An [example manifest](https://github.com/vanguarddev/vanguard-patcher/blob/master/examples/Manifest.toml) is available for reference.
 
 A CLI tool, [Manifesto](https://github.com/vanguarddev/vanguard-manifesto), is also available for application admins to generate and manage Manifest files. Manifesto can also convert Tequila XML manifests to Vanguard manifests.
+
+## Configuration
+
+Libvanguard supports reading and writing `vanguard.toml` files used by the Vanguard launcher for configuration. Alternatively, config may be passed in at runtime.
 
 ## Future Plans
 
@@ -35,9 +37,11 @@ A rough roadmap of planned development in order of priority is provided below.
 
 ## Building
 
-Vanguard can be built locally using the standard Rust toolchain and `cargo build`.
+Vanguard can be built locally using the standard stable Rust toolchain and `cargo build --lib`.
 
-Binary distributions are planned once a stable version is ready.
+Libvanguard may also be built as an application binary, which will patch based off a `vanguard.toml` config file in the project root if one is provided.
+
+This binary may be used as a background patcher if desired, although it does not provide any method for lifecycle management or state reporting.
 
 ## Contributing
 
