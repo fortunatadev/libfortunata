@@ -17,7 +17,7 @@ const TQ_TAG_FORUMS: &str = "forums";
 const TQ_TAG_FORUM: &str = "forum";
 const TQ_TAG_WEBPAGE: &str = "webpage";
 const TQ_TAG_POSTER: &str = "poster_image";
-// --- Tags added by Vanguard, not officially supported by Tequila spec
+// --- Tags added by Fortunata, not officially supported by Tequila spec
 const TQ_TAG_DISCORD: &str = "discord";
 const TQ_TAG_RSS: &str = "rss";
 
@@ -30,7 +30,7 @@ const TQ_ATTR_ARCH: &str = "architecture";
 const TQ_ATTR_URL: &str = "url";
 const TQ_ATTR_SIZE: &str = "size";
 const TQ_ATTR_MD5: &str = "md5";
-// --- Attributes added by Vanguard, not officially supported by Tequila spec
+// --- Attributes added by Fortunata, not officially supported by Tequila spec
 const TQ_ATTR_SHA1: &str = "sha1";
 const TQ_ATTR_SHA256: &str = "sha256";
 
@@ -113,7 +113,7 @@ fn parse_filelist(profiles: &roxmltree::Node, manifest: &mut Manifest) -> Result
 		if node.is_element() {
 			let size = node.attribute(TQ_ATTR_SIZE).and_then(|a: &str| a.parse::<u64>().ok());
 			// Size = 0 is used as a delete flag in vanilla Tequila. For security reasons,
-			// Vanguard will not delete a file it did not first download, so 0-size files are skipped.
+			// Fortunata will not delete a file it did not first download, so 0-size files are skipped.
 			if size.is_some() && size.unwrap() == 0 {
 				continue;
 			}
@@ -148,7 +148,7 @@ fn parse_filelist(profiles: &roxmltree::Node, manifest: &mut Manifest) -> Result
 }
 
 /// Parses a Tequila XML <forums> tree, adding profile data to the `manifest`.
-/// Vanguard does not support multiple forum URLs, so any entries after the first child are silently dropped.
+/// Fortunata does not support multiple forum URLs, so any entries after the first child are silently dropped.
 fn parse_forums(forums: &roxmltree::Node, manifest: &mut Manifest) {
 	manifest.forums = forums
 		.children()

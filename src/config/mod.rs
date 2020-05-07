@@ -7,11 +7,11 @@ use std::path;
 /// Version identifier
 pub const CFG_VERSION: &str = "1.0";
 /// Config file name
-pub const CFG_FILE_NAME: &str = "vanguard.toml";
+pub const CFG_FILE_NAME: &str = "fortunata.toml";
 
-/// Reads config entires from a `vanguard.toml` file.
+/// Reads config entires from a `fortunata.toml` file.
 /// # Arguments
-/// * `path` - Optional string slice specifying file path. Default is %vanguard-dir%/vanguard.toml.
+/// * `path` - Optional string slice specifying file path. Default is %fortunata-dir%/fortunata.toml.
 pub fn read_config_file(path: Option<&str>) -> Result<Config, ConfigError> {
     // Read file
     let file_path = match path {
@@ -24,10 +24,10 @@ pub fn read_config_file(path: Option<&str>) -> Result<Config, ConfigError> {
     Ok(config)
 }
 
-/// Writes a Config object back to disk as `vanguard.toml`.
+/// Writes a Config object back to disk as `fortunata.toml`.
 /// /// # Arguments
 /// * `config` - Config struct containing the config values to write
-/// * `path` - Optional string slice specifying file path. Default is %vanguard-dir%/vanguard.toml.
+/// * `path` - Optional string slice specifying file path. Default is %fortunata-dir%/fortunata.toml.
 pub fn write_config_file(config: &Config, path: Option<&str>) -> Result<(), ConfigError> {
     // Serialize current config
     let cfg_toml = toml::ser::to_string(config)?;
@@ -71,14 +71,14 @@ impl Default for Config {
 pub struct ManifestConfig {
     /// URL of the manifest. Config entires without a manifest URL will be ignored.
     pub url: String,
-    /// If true, allows Vanguard to modify files outside the `application_path`.
-    /// This is __extremely unsafe__, and may allow Vanguard to modify system files.
+    /// If true, allows Fortunata to modify files outside the `application_path`.
+    /// This is __extremely unsafe__, and may allow Fortunata to modify system files.
     pub allow_unsafe_file_paths: bool,
     /// If true, allows patching from non-https mirrors.
     pub allow_insecure_patching: bool,
     /// Path to which application files are downloaded.
     pub application_path: String,
-    /// If true, Vanguard will destroy and completely rebuild the application directory on next sync.
+    /// If true, Fortunata will destroy and completely rebuild the application directory on next sync.
     pub force_clean_sync: bool,
     /// If true, file consistency hash checks are not performed on files.
     pub ignore_hash_check: bool,

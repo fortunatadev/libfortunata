@@ -15,15 +15,15 @@ pub fn sync_manifest_files<'a>(manifest: &Manifest, config: &ManifestConfig) -> 
     // Init result container
     let mut result_vec: Vec<SyncFileResult> = Vec::with_capacity(manifest.files.len());
 
-    // Get current vanguard root dir
+    // Get current fortunata root dir
     let vg_path = PathAbs::new(std::env::current_dir()?)?;
 
     // Build app root path
     let app_path = PathAbs::new(&config.application_path)?;
 
-    // Prevent syncs to the Vanguard root directory.
+    // Prevent syncs to the Fortunata root directory.
     if vg_path == app_path {
-        return Err(SyncError::BadPath(String::from("The Vanguard root directory cannot be used as an application root directory.")));
+        return Err(SyncError::BadPath(String::from("The Fortunata root directory cannot be used as an application root directory.")));
     }
     fs::create_dir_all(&app_path);
 

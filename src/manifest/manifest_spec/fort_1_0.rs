@@ -4,10 +4,10 @@ use super::super::ManifestError;
 use serde::{Deserialize, Serialize};
 
 /// Version identifier
-pub const VERSION: &str = "vg-1.0";
+pub const VERSION: &str = "fort-1.0";
 
-/// Serializes the contents of a `Manifest` into a Vanguard 1.0 (`vg-1.0`) TOML format.
-/// Note that properties not supported in `vg-1.0` will be silently dropped.
+/// Serializes the contents of a `Manifest` into a Fortunata 1.0 (`fort-1.0`) TOML format.
+/// Note that properties not supported in `fort-1.0` will be silently dropped.
 /// # Arguments
 /// * `manifest` - The Manifest object.
 pub fn serialize_manifest<'a>(manifest: &'a Manifest) -> Result<String, ManifestError> {
@@ -19,7 +19,7 @@ pub fn serialize_manifest<'a>(manifest: &'a Manifest) -> Result<String, Manifest
 	Ok(serialized)
 }
 
-/// Deserializes the contents of a Vanguard 1.0 (`vg-1.0`) manifest file, returning a `Manifest`.
+/// Deserializes the contents of a Fortunata 1.0 (`fort-1.0`) manifest file, returning a `Manifest`.
 /// # Arguments
 /// * `manifest` - A string slice containing the manifest file contents
 pub fn deserialize_manifest(manifest: &str) -> Result<Manifest, ManifestError> {
@@ -28,12 +28,12 @@ pub fn deserialize_manifest(manifest: &str) -> Result<Manifest, ManifestError> {
 	Ok(versioned_manifest.into())
 }
 
-/// Manifest version `vg-1.0` (Vanguard TOML 1.0)
+/// Manifest version `fort-1.0` (Fortunata TOML 1.0)
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename = "manifest")]
 #[allow(non_camel_case_types)]
 pub struct Manifest_VG_1_0<'a> {
-	/// Version identifier (ie, vg-1.0).
+	/// Version identifier (ie, fort-1.0).
 	pub version: &'a str,
 	/// Global application name for the manifest.
 	pub label: &'a str,
@@ -197,7 +197,7 @@ mod tests {
 	#[test]
 	fn should_serialize() {
 		let test_manifest = Manifest {
-			version: "vg-1.0".to_owned(),
+			version: "fort-1.0".to_owned(),
 			label: "Test Manifest".to_owned(),
 			profiles: vec![ManifestProfile {
 				name: "Awesome App".to_owned(),
@@ -245,7 +245,7 @@ mod tests {
 		let ser = serialize_manifest(&test_manifest).unwrap();
 
 		assert_eq!(ser, r#"
-			version = "vg-1.0"
+			version = "fort-1.0"
 			label = "Test Manifest"
 			webpage = "https://example.com"
 			forums = "https://example.forums"
@@ -282,7 +282,7 @@ mod tests {
 	#[test]
 	fn should_deserialize() {
 		let test_toml = r#"
-			version = "vg-1.0"
+			version = "fort-1.0"
 			label = "Test Manifest"
 			webpage = "https://example.com"
 			forums = "https://example.forums"

@@ -4,7 +4,7 @@ mod file_sync;
 mod manifest;
 
 fn main() {
-    println!("Initializing Vanguard...");
+    println!("Initializing Fortunata...");
 
     // Get config
     let cfg = config::read_config_file(None).unwrap();
@@ -36,7 +36,7 @@ fn warn_unsafe_config(config: &config::Config) {
         }
         if mf_cfg.allow_unsafe_file_paths {
             println!("WARNING: allow_unsafe_file_paths enabled for manifest: {}", mf_cfg.url);
-            println!("         This is __extremely unsafe__ and allows Vanguard to potentially modify any file on your system.");
+            println!("         This is __extremely unsafe__ and allows Fortunata to potentially modify any file on your system.");
         }
     }
 }

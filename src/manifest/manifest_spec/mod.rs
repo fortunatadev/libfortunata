@@ -1,13 +1,13 @@
 // --- Modules
 pub mod tq_xml;
-pub mod vg_1_0;
+pub mod fort_1_0;
 
 /// Defines a Manifest.
 /// This type is a superset of all versioned Manifest types, and takes ownership
 /// of data deserialized with underlying versioned types so deserializers can fall out of scope.
 #[derive(Debug, Clone)]
 pub struct Manifest {
-	/// Version identifier (ie, vg-1.0).
+	/// Version identifier (ie, fort-1.0).
 	/// Tequila does not sepifcy a version attribute, so `tq-xml` is used for all Tequila XML manifests.
 	pub version: String,
 	/// Global application name for the manifest.

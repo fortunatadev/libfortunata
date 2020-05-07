@@ -1,5 +1,5 @@
 [package]
-name = "vanguard-rs"
+name = "fortunata-rs"
 version = "0.1.0"
 authors = ["Carrie J V <carrie@carriejv.com>"]
 edition = "2018"

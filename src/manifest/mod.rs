@@ -17,7 +17,7 @@ pub fn deserialize_manifest(manifest: &str) -> Result<Manifest, ManifestError> {
 	match manifest.find("<?xml") {
 		// TOML file types
 		None => match toml::from_str::<ManifestVersion>(&manifest)?.version {
-			"vg-1.0" => manifest_spec::vg_1_0::deserialize_manifest(&manifest),
+			"fort-1.0" => manifest_spec::fort_1_0::deserialize_manifest(&manifest),
 			_ => Err(ManifestError::UnknownType)
 		},
 		// XML file types
@@ -25,7 +25,7 @@ pub fn deserialize_manifest(manifest: &str) -> Result<Manifest, ManifestError> {
 	}
 }
 
-/// Serializes the contents of a `Manifest` into a a Vanguard TOML format.
+/// Serializes the contents of a `Manifest` into a a Fortunata TOML format.
 /// This serialize function will output the latest `vg` manifest version.
 /// Properties not supported in that format may be silently dropped.
 /// To output a specific version, use a specific submodule serializer.
@@ -33,8 +33,8 @@ pub fn deserialize_manifest(manifest: &str) -> Result<Manifest, ManifestError> {
 /// * `manifest` - The Manifest object.
 pub fn serialize_manifest<'a>(manifest: &'a Manifest) -> Result<String, ManifestError> {
 	// Cast to the versioned struct and overwrite the version property.
-	let mut versioned_manifest: manifest_spec::vg_1_0::Manifest_VG_1_0 = manifest.into();
-	versioned_manifest.version = manifest_spec::vg_1_0::VERSION;
+	let mut versioned_manifest: manifest_spec::fort_1_0::Manifest_VG_1_0 = manifest.into();
+	versioned_manifest.version = manifest_spec::fort_1_0::VERSION;
 	// Serialize
 	let serialized = toml::to_string(&versioned_manifest)?;
 	Ok(serialized)
